@@ -1,8 +1,3 @@
-# Exemple de connection à une BD
-# il faut avoir installé mysqlconnector (pip install mysql-connector-python)
-# JCY pour classe SI-CA1a
-# mars 2025
-
 
 import mysql.connector
 

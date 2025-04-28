@@ -1,0 +1,3 @@
+USE mydb;
+ALTER TABLE races
+DROP INDEX Type_UNIQUE;
