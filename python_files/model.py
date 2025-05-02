@@ -1,3 +1,8 @@
+# Exemple de connection à une BD
+# il faut avoir installé mysqlconnector (pip install mysql-connector-python)
+# JCY pour classe SI-CA1a
+# mars 2025
+
 
 import mysql.connector
 
@@ -9,8 +14,8 @@ def open_db():
             host='127.0.0.1',
             port='3306',
             user='root',
-            password='Vikket',
-            database="karting_full"
+            password='root',
+            database="mydb"
         )
         return conn
     except mysql.connector.Error as err:
