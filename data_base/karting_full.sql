@@ -21,14 +21,16 @@ USE `mydb` ;
 -- -----------------------------------------------------
 -- Table `mydb`.`Karts`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Karts` ;
+DROP TABLE IF EXISTS `mydb`.`Karts`;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`Karts` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `number` INT NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `number_UNIQUE` (`number` ASC) VISIBLE) 
 ENGINE = InnoDB;
+
 
 
 -- -----------------------------------------------------
@@ -37,10 +39,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `mydb`.`Pilots` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`Pilots` (
-  `id` INT NOT NULL,
-  `Firstname` VARCHAR(45) NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `Firstname` VARCHAR(45) NULL,
   `Lastname` VARCHAR(45) NULL,
+  `Pseudo` VARCHAR(255) NOT NULL,
   `Date_of_birth` DATETIME NULL,
+  `Pw_hash` VARCHAR(255) NULL, 
+  `level` INT DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -110,6 +115,30 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Races` (
   `Type` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`pilots_has_races`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`pilots_has_races` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`pilots_has_races` (
+  `Pilots_id` INT NOT NULL,
+  `Races_id` INT NOT NULL,
+  PRIMARY KEY (`Pilots_id`, `Races_id`),
+  INDEX `fk_Pilots_has_races_Races1_idx` (`Races_id` ASC) VISIBLE,
+  INDEX `fk_Pilots_has_races_Pilots1_idx` (`Pilots_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Pilots_has_races_Pilots1`
+    FOREIGN KEY (`Pilots_id`)
+    REFERENCES `mydb`.`Pilots` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Pilots_has_races_Races1`
+    FOREIGN KEY (`Races_id`)
+    REFERENCES `mydb`.`Races` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 

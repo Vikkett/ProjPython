@@ -14,7 +14,7 @@ def open_db():
             host='127.0.0.1',
             port='3306',
             user='root',
-            password='root',
+            password='Vikket',
             database="mydb"
         )
         return conn
@@ -23,15 +23,18 @@ def open_db():
         return None
 
 
-def read_SQL(sql):
-    """Exécute une requête SELECT et affiche les résultats."""
+def read_SQL(sql, params=None):
+    """Exécute une requête SELECT et retourne les résultats (avec ou sans paramètres)."""
     conn = open_db()
     if conn is None:
         return []
 
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql)
+        if params:
+            cursor.execute(sql, params)
+        else:
+            cursor.execute(sql)
         results = cursor.fetchall()
         return results
     except mysql.connector.Error as err:
@@ -40,6 +43,7 @@ def read_SQL(sql):
     finally:
         cursor.close()
         conn.close()
+
 
 
 def read_table(table):
