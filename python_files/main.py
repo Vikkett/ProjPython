@@ -1,12 +1,24 @@
+"""
+Author: Viktoriia Varennyk et Niels Delafontaine
+Date: 07.04.2025
+Name: Projet_karting
+Version: 0.2
+------------------------------------------------------------------------------------------------------------------------
+Modifications:
+Date:
+By:
+Comment:
+To add : button see results, comments, option te see where wo take parts to a race and option to unsubscride to it
+"""
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
-import model
+import model #module d'accès à la base de donnée
 import login_register
-from login_register import get_current_user
+from login_register import get_current_user #module de login
 
 # Authentification obligatoire
-current_user_pseudo, current_user_level = get_current_user()
+current_user_pseudo, current_user_level = get_current_user() #Bloque l'accès à la base de donnée si l'utilisateur n'est pas logué
 if not current_user_pseudo:
     raise SystemExit("Accès refusé : vous devez être connecté pour accéder à cette interface.")
 
@@ -24,13 +36,10 @@ def refresh_kartings():
         pilots_has_results = model.read_table("Pilots_has_Results")
         results = model.read_table("Results")
 
-        #if not all([karts, races, pilots, pilots_has_results, results]):
+
         if not all([races, pilots]):
-            #if not karts: tk.Label(frame, text="La base 'Karts' est vide.", font=("Arial", 12)).pack()
             if not races: tk.Label(frame, text="La base 'Races' est vide.", font=("Arial", 12)).pack()
             if not pilots: tk.Label(frame, text="La base 'Pilots' est vide.", font=("Arial", 12)).pack()
-            #if not pilots_has_results: tk.Label(frame, text="La base 'Pilots_has_Results' est vide.", font=("Arial", 12)).pack()
-            #if not results: tk.Label(frame, text="La base 'Results' est vide.", font=("Arial", 12)).pack()
             return None
         return karts, races, pilots, pilots_has_karts, pilots_has_races, pilots_has_results, results
 
@@ -145,7 +154,20 @@ def open_account_window():
     for i, (label, key) in enumerate(zip(labels, keys)):
         tk.Label(account_win, text=label).pack()
         entry = tk.Entry(account_win)
-        entry.insert(0, pilot.get(key) or "")
+        if key == "Date_of_birth":
+            default = pilot.get(key) or "AAAA-MM-JJ"
+            entry.insert(0, default)
+
+            def on_focus_in(event, e=entry): # Aide de l'IA pour la suggestion de date qui disparaît
+                if e.get() == "AAAA-MM-JJ":
+                    e.delete(0, tk.END)
+            def on_focus_out(event, e=entry):
+                if not e.get():
+                    e.insert(0, "AAAA-MM-JJ")
+            entry.bind("<FocusIn>", on_focus_in)
+            entry.bind("<FocusOut>", on_focus_out)
+        else:
+            entry.insert(0, pilot.get(key) or "")
         entry.pack()
         entries[key] = entry
 
@@ -165,7 +187,7 @@ def open_account_window():
                 try:
                     # Valide le format et convertit
                     parsed_date = datetime.strptime(new_val, "%Y-%m-%d")
-                    new_val = parsed_date.strftime("%Y-%m-%d %H:%M:%S")
+                    new_val = parsed_date.strftime("%Y-%m-%d")
                 except ValueError:
                     messagebox.showerror("Erreur", "La date de naissance doit être au format AAAA-MM-JJ.")
                     return
@@ -218,6 +240,7 @@ menu = tk.Menu(menu_button, tearoff=0)
 
 menu.add_command(label="🏠 Home", command=refresh_kartings)
 menu.add_command(label="👤 Compte", command=lambda: open_account_window())
+# menu.add_command(label="Next races") in a next update
 
 menu.add_separator()
 menu.add_command(label="Quitter", command=root.quit)
