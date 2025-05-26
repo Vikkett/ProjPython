@@ -8,22 +8,22 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema Projet_karting
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `mydb` ;
+DROP SCHEMA IF EXISTS `Projet_karting` ;
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema Projet_karting
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `Projet_karting` DEFAULT CHARACTER SET utf8 ;
+USE `Projet_karting` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Karts`
+-- Table `Projet_karting`.`Karts`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Karts`;
+DROP TABLE IF EXISTS `Projet_karting`.`Karts`;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Karts` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Karts` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `number` INT NOT NULL,
   PRIMARY KEY (`id`),
@@ -34,11 +34,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Pilots`
+-- Table `Projet_karting`.`Pilots`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Pilots` ;
+DROP TABLE IF EXISTS `Projet_karting`.`Pilots` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Pilots` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Pilots` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `Firstname` VARCHAR(45) NULL,
   `Lastname` VARCHAR(45) NULL,
@@ -52,11 +52,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Pilots_has_Karts`
+-- Table `Projet_karting`.`Pilots_has_Karts`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Pilots_has_Karts` ;
+DROP TABLE IF EXISTS `Projet_karting`.`Pilots_has_Karts` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Pilots_has_Karts` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Pilots_has_Karts` (
   `Pilots_id` INT NOT NULL,
   `Karts_id` INT NOT NULL,
   `start_date` DATETIME NULL,
@@ -66,23 +66,23 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Pilots_has_Karts` (
   INDEX `fk_Pilots_has_Karts_Pilots_idx` (`Pilots_id` ASC) VISIBLE,
   CONSTRAINT `fk_Pilots_has_Karts_Pilots`
     FOREIGN KEY (`Pilots_id`)
-    REFERENCES `mydb`.`Pilots` (`id`)
+    REFERENCES `Projet_karting`.`Pilots` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Pilots_has_Karts_Karts1`
     FOREIGN KEY (`Karts_id`)
-    REFERENCES `mydb`.`Karts` (`id`)
+    REFERENCES `Projet_karting`.`Karts` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Pilots_has_Results`
+-- Table `Projet_karting`.`Pilots_has_Results`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Pilots_has_Results` ;
+DROP TABLE IF EXISTS `Projet_karting`.`Pilots_has_Results` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Pilots_has_Results` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Pilots_has_Results` (
   `Pilots_id` INT NOT NULL,
   `Results_id` INT NOT NULL,
   `position` INT NULL,
@@ -92,23 +92,23 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Pilots_has_Results` (
   INDEX `fk_Pilots_has_Results_Pilots1_idx` (`Pilots_id` ASC) VISIBLE,
   CONSTRAINT `fk_Pilots_has_Results_Pilots1`
     FOREIGN KEY (`Pilots_id`)
-    REFERENCES `mydb`.`Pilots` (`id`)
+    REFERENCES `Projet_karting`.`Pilots` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Pilots_has_Results_Results1`
     FOREIGN KEY (`Results_id`)
-    REFERENCES `mydb`.`Results` (`id`)
+    REFERENCES `Projet_karting`.`Results` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Races`
+-- Table `Projet_karting`.`Races`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Races` ;
+DROP TABLE IF EXISTS `Projet_karting`.`Races` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Races` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Races` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `location` VARCHAR(45) NOT NULL,
   `date` DATETIME NOT NULL,
@@ -119,11 +119,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`pilots_has_races`
+-- Table `Projet_karting`.`pilots_has_races`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`pilots_has_races` ;
+DROP TABLE IF EXISTS `Projet_karting`.`pilots_has_races` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`pilots_has_races` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`pilots_has_races` (
   `Pilots_id` INT NOT NULL,
   `Races_id` INT NOT NULL,
   PRIMARY KEY (`Pilots_id`, `Races_id`),
@@ -131,23 +131,23 @@ CREATE TABLE IF NOT EXISTS `mydb`.`pilots_has_races` (
   INDEX `fk_Pilots_has_races_Pilots1_idx` (`Pilots_id` ASC) VISIBLE,
   CONSTRAINT `fk_Pilots_has_races_Pilots1`
     FOREIGN KEY (`Pilots_id`)
-    REFERENCES `mydb`.`Pilots` (`id`)
+    REFERENCES `Projet_karting`.`Pilots` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Pilots_has_races_Races1`
     FOREIGN KEY (`Races_id`)
-    REFERENCES `mydb`.`Races` (`id`)
+    REFERENCES `Projet_karting`.`Races` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Results`
+-- Table `Projet_karting`.`Results`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Results` ;
+DROP TABLE IF EXISTS `Projet_karting`.`Results` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Results` (
+CREATE TABLE IF NOT EXISTS `Projet_karting`.`Results` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `date` DATETIME NULL,
   `Races_id` INT NOT NULL,
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Results` (
   INDEX `fk_Results_Races1_idx` (`Races_id` ASC) VISIBLE,
   CONSTRAINT `fk_Results_Races1`
     FOREIGN KEY (`Races_id`)
-    REFERENCES `mydb`.`Races` (`id`)
+    REFERENCES `Projet_karting`.`Races` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

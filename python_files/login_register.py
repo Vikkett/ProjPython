@@ -2,20 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 import hashlib
-
+import model
+from model import open_db
 # Variable globale pour stocker le niveau de l'utilisateur connecté
 current_user_level = None
 current_user_pseudo = None
 
 # --- Connexion à la base MySQL ---
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        port=3306,
-        user="root",        # <-- à adapter
-        password="Vikket",    # <-- à adapter
-        database="mydb"     # <-- ta base
-    )
+open_db()
 
 # --- Fonction pour hacher un mot de passe ---
 def hash_password(password):
@@ -34,7 +28,7 @@ def register():
     hashed = hash_password(password1)
 
     try:
-        conn = get_db_connection()
+        conn = open_db()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO pilots (Pseudo, Pw_hash, level) VALUES (%s, %s, %s)",
@@ -59,7 +53,7 @@ def login():
     hashed = hash_password(password)
 
     try:
-        conn = get_db_connection()
+        conn = open_db()
         cursor = conn.cursor()
         cursor.execute("SELECT Pw_hash, level FROM pilots WHERE pseudo = %s", (username,))
         result = cursor.fetchone()

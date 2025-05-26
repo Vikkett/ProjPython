@@ -1,4 +1,4 @@
-USE mydb;
+USE projet_karting;
 INSERT INTO pilots_has_karts (Pilots_id, Karts_id)
 VALUES 
 	(1,1),

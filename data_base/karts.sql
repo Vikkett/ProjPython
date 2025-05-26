@@ -1,4 +1,4 @@
-USE mydb;
+USE projet_karting;
 
 INSERT INTO karts (number)
 VALUES

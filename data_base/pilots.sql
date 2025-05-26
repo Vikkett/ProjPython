@@ -1,9 +1,10 @@
-USE mydb;
+USE Projet_karting;
 
-INSERT INTO pilots (id, firstname, lastname, date_of_birth)
+INSERT INTO pilots (id, firstname, lastname, pseudo, date_of_birth, pw_hash, level)
 VALUES
-  ('1', 'John', 'Doe', '1985-04-12'),
-  ('2', 'Emily', 'Smith', '1990-08-23'),
-  ('3', 'Michael', 'Johnson', '1978-11-05'),
-  ('4', 'Sophia', 'Williams', '1995-02-17'),
-  ('5', 'David', 'Brown', '1982-07-30');
+  ('1', 'Exemple', '1','e1', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0'),
+  ('2', 'Exemple', '2','e2', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0'),
+  ('3', 'Exemple', '3','e3', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0'),
+  ('4', 'Exemple', '4','e4', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0'),
+  ('5', 'Exemple', '5','e5', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0'),
+  ('6', 'Exemple', '6','e6', '1985-04-12', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '0');

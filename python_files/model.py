@@ -14,8 +14,8 @@ def open_db():
             host='127.0.0.1',
             port='3306',
             user='root',
-            password='Vikket',
-            database="mydb"
+            password='root',
+            database="Projet_karting"
         )
         return conn
     except mysql.connector.Error as err:

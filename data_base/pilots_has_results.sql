@@ -1,4 +1,4 @@
-USE mydb;
+USE projet_karting;
 INSERT INTO pilots_has_results (Pilots_id, results_id, position, TIME)
 VALUES 
 	(1,1, 3,'03:46:24' ),
