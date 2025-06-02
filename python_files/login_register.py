@@ -62,8 +62,13 @@ def login():
             current_user_level = result[1]
             current_user_pseudo = username
             messagebox.showinfo("Login successful", f"Welcome {username}!")
-            root.destroy()  # Ferme la fenêtre principale de login
-            import main  # Lance la suite de l’application après login
+            import subprocess
+            import sys
+
+            root.destroy()
+            # Launch main.py as a separate process
+            subprocess.Popen([sys.executable, "main.py"])
+
         else:
             messagebox.showerror("Error", "Incorrect username or password.")
     except Exception as e:

@@ -16,6 +16,7 @@ from datetime import datetime
 import model #module d'accès à la base de donnée
 import login_register
 from login_register import get_current_user #module de login
+from PIL import Image, ImageTk
 
 # Authentification obligatoire
 current_user_pseudo, current_user_level = get_current_user() #Bloque l'accès à la base de donnée si l'utilisateur n'est pas logué
@@ -225,32 +226,36 @@ def open_account_window():
     tk.Button(account_win, text="Sauvegarder", command=save_changes, bg="green", fg="white").pack(pady=5)
     tk.Button(account_win, text="Supprimer mon compte", command=delete_account, bg="red", fg="white").pack(pady=5)
 
-
 # Interface utilisateur principale
 root = tk.Tk()
 root.title("Kartings Manager")
 root.geometry("600x600")
 
+# Load and set background image
+bg_image = Image.open("../img/f1.jpg")
+bg_photo = ImageTk.PhotoImage(bg_image.resize((600, 600)))
+bg_label = tk.Label(root, image=bg_photo)
+bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+# Create a frame over the background to hold all widgets
+main_frame = tk.Frame(root, bg="white")
+main_frame.place(relwidth=1, relheight=1)
+
 # --- Menu principal en haut à droite ---
-menu_frame = tk.Frame(root)
+menu_frame = tk.Frame(main_frame)
 menu_frame.pack(anchor="ne", padx=10, pady=5)
 
 menu_button = tk.Menubutton(menu_frame, text="Menu", relief=tk.RAISED, font=("Arial", 11, "bold"))
 menu = tk.Menu(menu_button, tearoff=0)
-
 menu.add_command(label="🏠 Home", command=refresh_kartings)
 menu.add_command(label="👤 Compte", command=lambda: open_account_window())
-# menu.add_command(label="Next races") in a next update
-
 menu.add_separator()
 menu.add_command(label="Quitter", command=root.quit)
-
 menu_button.config(menu=menu)
 menu_button.pack()
 
-
 # Zone des filtres
-filter_frame = tk.Frame(root)
+filter_frame = tk.Frame(main_frame)
 filter_frame.pack(pady=10)
 
 selected_location = tk.StringVar()
@@ -274,10 +279,10 @@ selected_type.trace_add("write", lambda *args: refresh_kartings())
 selected_date.trace_add("write", lambda *args: refresh_kartings())
 
 # Bouton de mise à jour
-tk.Button(root, text="Refresh", command=refresh_kartings, bg="blue", fg="white").pack(pady=5)
+tk.Button(main_frame, text="Refresh", command=refresh_kartings, bg="blue", fg="white").pack(pady=5)
 
 # Zone d’affichage principale
-frame = tk.Frame(root)
+frame = tk.Frame(main_frame)
 frame.pack(fill="both", expand=True, padx=10, pady=10)
 
 # Chargement initial
