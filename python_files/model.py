@@ -14,7 +14,7 @@ def open_db():
             host='127.0.0.1',
             port='3306',
             user='root',
-            password='Vikket',
+            password='root',
             database="Projet_karting"
         )
         return conn

@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 import hashlib
+
+from pyqtgraph.examples.MultiDataPlot import widget
+
 import model
 from model import open_db
 # Variable globale pour stocker le niveau de l'utilisateur connecté
