@@ -2,13 +2,15 @@
 Author: Viktoriia Varennyk et Niels Delafontaine
 Date: 07.04.2025
 Name: Projet_karting
-Version: 0.4
+Version: 0.5
 ------------------------------------------------------------------------------------------------------------------------
 Modifications:
 Date:
 By:
 Comment:
-Fixed subscription list to show all registered events including past ones by removing date filtering.
+Updated event list buttons: When user is already registered ("inscrit"), "S'inscrire" button turns red with black text and is disabled.
+User must unsubscribe first to re-enable registration.
+Added Home button functionality to reset filters (Lieu, Type, Date) when clicked.
 """
 import tkinter as tk
 from tkinter import messagebox
@@ -17,6 +19,82 @@ import model  # module d'accès à la base de donnée
 import login_register
 from login_register import get_current_user  # module de login
 from PIL import Image, ImageTk
+
+
+def open_account_window():
+    pseudo, _ = get_current_user()
+    pilot_data = model.read_SQL("SELECT * FROM Pilots WHERE Pseudo = %s", (pseudo,))
+    if not pilot_data:
+        messagebox.showerror("Erreur", "Impossible de charger les données du compte.")
+        return
+
+    pilot = pilot_data[0]
+
+    account_win = tk.Toplevel(root)
+    account_win.title("Mon Compte")
+    account_win.geometry("400x300")
+
+    tk.Label(account_win, text="Modifier mes informations", font=("Arial", 14, "bold")).pack(pady=10)
+
+    # Champs
+    labels = ["Prénom", "Nom", "Date de naissance", "Pseudo"]
+    keys = ["Firstname", "Lastname", "Date_of_birth", "Pseudo"]
+    entries = {}
+
+    for i, (label, key) in enumerate(zip(labels, keys)):
+        tk.Label(account_win, text=label).pack()
+        entry = tk.Entry(account_win)
+        if key == "Date_of_birth":
+            default = pilot.get(key) or "AAAA-MM-JJ"
+            entry.insert(0, default)
+
+            def on_focus_in(event, e=entry):  # Aide de l'IA pour la suggestion de date qui disparaît
+                if e.get() == "AAAA-MM-JJ":
+                    e.delete(0, tk.END)
+
+            def on_focus_out(event, e=entry):
+                if not e.get():
+                    e.insert(0, "AAAA-MM-JJ")
+
+            entry.bind("<FocusIn>", on_focus_in)
+            entry.bind("<FocusOut>", on_focus_out)
+        else:
+            entry.insert(0, pilot.get(key) or "")
+        entry.pack()
+        entries[key] = entry
+
+    def save_changes():
+        # Collect new values from entries
+        new_values = {key: entries[key].get().strip() for key in keys}
+
+        # Validate and update the database
+        for key in keys:
+            if new_values[key] != pilot.get(key):
+                if key == "Date_of_birth":
+                    try:
+                        # Validate date format
+                        parsed_date = datetime.strptime(new_values[key], "%Y-%m-%d")
+                        new_values[key] = parsed_date.strftime("%Y-%m-%d")
+                    except ValueError:
+                        messagebox.showerror("Erreur", "La date de naissance doit être au format AAAA-MM-JJ.")
+                        return
+
+                # Update the database
+                update_result = model.update_row("Pilots", {key: new_values[key]}, {"Pseudo": pseudo})
+                if not update_result:
+                    messagebox.showerror("Erreur", f"Échec de mise à jour du champ {key}.")
+                    return
+
+        messagebox.showinfo("Succès", "Informations mises à jour.")
+        account_win.destroy()
+
+    # Save button
+    tk.Button(account_win, text="Sauvegarder", command=save_changes, bg="green", fg="white").pack(pady=5)
+
+
+def confirm_quit():
+    if messagebox.askyesno("Quitter", "Voulez-vous vraiment quitter ?"):
+        root.destroy()
 
 
 def open_main_window(current_user_pseudo, current_user_level):
@@ -35,13 +113,14 @@ def open_main_window(current_user_pseudo, current_user_level):
 
     menu_button = tk.Menubutton(menu_frame, text="Menu", relief=tk.RAISED, font=("Arial", 11, "bold"))
     menu = tk.Menu(menu_button, tearoff=0)
-    menu.add_command(label="🏠 Home", command=refresh_kartings)
-    menu.add_command(label="👤 Compte", command=lambda: open_account_window())
+    # Change "Home" button command to go_home to reset filters
+    menu.add_command(label="🏠 Home", command=lambda: go_home())
+    menu.add_command(label="👤 Compte", command=open_account_window)
     menu.add_command(label="🏆 Mes Résultats", command=show_my_results)
     menu.add_command(label="📋 Mes Inscriptions", command=show_my_subscriptions)
 
     menu.add_separator()
-    menu.add_command(label="Quitter", command=root.quit)
+    menu.add_command(label="Quitter", command=confirm_quit)  # Quit confirmation
     menu_button.config(menu=menu)
     menu_button.pack()
 
@@ -87,6 +166,13 @@ def open_main_window(current_user_pseudo, current_user_level):
     root.mainloop()
 
 
+def go_home():
+    selected_location.set("")
+    selected_type.set("")
+    selected_date.set("")
+    refresh_kartings()
+
+
 def register_to_race(race):
     pseudo = login_register.current_user_pseudo
     if not pseudo:
@@ -129,6 +215,7 @@ def register_to_race(race):
         )
         if result:
             messagebox.showinfo("Succès", "Inscription réussie.")
+            refresh_kartings()  # Refresh to update buttons appearance
         else:
             messagebox.showerror("Erreur", "Inscription échouée.")
 
@@ -141,25 +228,30 @@ def refresh_kartings():
         karts = model.read_table("Karts")
         races = model.read_table("Races")
         pilots = model.read_table("Pilots")
-        pilots_has_karts = model.read_table("Pilots_has_Karts")
         pilots_has_races = model.read_table("Pilots_has_Races")
-        pilots_has_results = model.read_table("Pilots_has_Results")
-        results = model.read_table("Results")
 
-        if not all([races, pilots]):
+        if not races or not pilots:
             if not races:
                 tk.Label(frame, text="La base 'Races' est vide.", font=("Arial", 12)).pack()
             if not pilots:
                 tk.Label(frame, text="La base 'Pilots' est vide.", font=("Arial", 12)).pack()
             return None
-        return karts, races, pilots, pilots_has_karts, pilots_has_races, pilots_has_results, results
+
+        return races, pilots, pilots_has_races
 
     data = load_data()
     if not data:
         return
-    karts, races, pilots, pilots_has_karts, pilots_has_races, pilots_has_results, results = data
+    races, pilots, pilots_has_races = data
 
-    # Filtrage par lieu/type/date
+    pseudo = login_register.current_user_pseudo
+    pilot = model.read_SQL("SELECT id FROM Pilots WHERE Pseudo = %s", (pseudo,))
+    if not pilot:
+        pilot_id = None
+    else:
+        pilot_id = pilot[0]['id']
+
+    # Filter races by selected filters
     filtered_races = races
     if selected_location.get():
         filtered_races = [r for r in filtered_races if r["location"] == selected_location.get()]
@@ -167,6 +259,13 @@ def refresh_kartings():
         filtered_races = [r for r in filtered_races if r["Type"] == selected_type.get()]
     if selected_date.get():
         filtered_races = [r for r in filtered_races if r["date"] == selected_date.get()]
+
+    # Get IDs of races pilot is registered to
+    registered_race_ids = set()
+    if pilot_id and pilots_has_races:
+        for pr in pilots_has_races:
+            if pr.get("Pilots_id") == pilot_id:
+                registered_race_ids.add(pr.get("Races_id"))
 
     for race in filtered_races:
         frame_race = tk.Frame(frame)
@@ -178,8 +277,15 @@ def refresh_kartings():
         btn_details = tk.Button(frame_race, text="Voir détails", command=lambda r=race: show_race_details(r))
         btn_details.pack(side="left", padx=5)
 
-        btn_inscr = tk.Button(frame_race, text="S'inscrire", command=lambda r=race: register_to_race(r), bg="green", fg="white")
-        btn_inscr.pack(side="left", padx=5)
+        race_id = race.get("id")
+        if pilot_id and race_id in registered_race_ids:
+            btn_inscr = tk.Label(frame_race, text="Inscrit", bg="red", fg="white", padx=10, pady=3,
+                                 font=("Arial", 10, "bold"))
+            btn_inscr.pack(side="left", padx=5)
+        else:
+            btn_inscr = tk.Button(frame_race, text="S'inscrire", command=lambda r=race: register_to_race(r), bg="green",
+                                  fg="white")
+            btn_inscr.pack(side="left", padx=5)
 
     def update_menu(menu_widget, var, values):
         menu = menu_widget["menu"]
@@ -225,11 +331,6 @@ def show_my_results():
         messagebox.showerror("Erreur", str(e))
 
 
-def open_account_window():
-    # (existing code here)
-    pass
-
-
 def show_my_subscriptions():
     pseudo, _ = get_current_user()
 
@@ -240,7 +341,6 @@ def show_my_subscriptions():
 
     pilot_id = pilot[0]["id"]
 
-    # Modified query to show all subscriptions including past events
     subscriptions = model.read_SQL(
         """
         SELECT r.id, r.location, r.date, r.Type
@@ -263,7 +363,6 @@ def show_my_subscriptions():
     tk.Label(subs_win, text="Courses inscrites", font=("Arial", 14, "bold")).pack(pady=10)
 
     for race in subscriptions:
-        # Note: We no longer skip past dates here, so all registered events will show
         race_date = race["date"]
         if isinstance(race_date, str):
             try:
@@ -300,7 +399,9 @@ def unsubscribe_from_race(pilot_id, race_id, window_to_close):
         if result:
             messagebox.showinfo("Succès", "Vous avez été désinscrit.")
             window_to_close.destroy()
+            refresh_kartings()  # refresh main list to update buttons
             show_my_subscriptions()  # Refresh list
-        else:
-            messagebox.showerror("Erreur", "Échec de la désinscription.")
 
+
+if __name__ == "__main__":
+    open_main_window()
