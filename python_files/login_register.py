@@ -2,23 +2,24 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 import hashlib
-
-from pyqtgraph.examples.MultiDataPlot import widget
+import subprocess
+import sys
 
 import model
 from model import open_db
-# Variable globale pour stocker le niveau de l'utilisateur connecté
+
+# Global variables
 current_user_level = None
 current_user_pseudo = None
 
-# --- Connexion à la base MySQL ---
-open_db()
+# --- Database Connection ---
+#open_db() #moved to where it is needed
 
-# --- Fonction pour hacher un mot de passe ---
+# --- Password Hashing ---
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# --- Fonction d'inscription ---
+# --- Registration Function ---
 def register():
     username = entry_register_username.get()
     password1 = entry_register_password1.get()
@@ -30,8 +31,13 @@ def register():
 
     hashed = hash_password(password1)
 
+    conn = None # Initialize conn to None
     try:
         conn = open_db()
+        if conn is None:
+            messagebox.showerror("Error", "Failed to connect to the database.")
+            return
+
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO pilots (Pseudo, Pw_hash, level) VALUES (%s, %s, %s)",
@@ -45,18 +51,26 @@ def register():
     except Exception as e:
         messagebox.showerror("Error", str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if conn: # Check if conn is not None before attempting to close
+            if conn.is_connected():
+                cursor = conn.cursor() #create cursor
+                cursor.close()
+                conn.close()
 
-# --- Fonction de connexion ---
+# --- Login Function ---
 def login():
     global current_user_level, current_user_pseudo
     username = entry_login_username.get()
     password = entry_login_password.get()
     hashed = hash_password(password)
 
+    conn = None
     try:
         conn = open_db()
+        if conn is None:
+            messagebox.showerror("Error", "Failed to connect to the database.")
+            return
+
         cursor = conn.cursor()
         cursor.execute("SELECT Pw_hash, level FROM pilots WHERE pseudo = %s", (username,))
         result = cursor.fetchone()
@@ -65,20 +79,22 @@ def login():
             current_user_level = result[1]
             current_user_pseudo = username
             messagebox.showinfo("Login successful", f"Welcome {username}!")
-            import subprocess
-            import sys
 
+            # Fermer la fenêtre login
             root.destroy()
-            # Launch main.py as a separate process
-            subprocess.Popen([sys.executable, "main.py"])
+
+            # Importer main.py et ouvrir la fenêtre principale
+            import main
+            main.open_main_window(current_user_pseudo, current_user_level)
 
         else:
             messagebox.showerror("Error", "Incorrect username or password.")
     except Exception as e:
         messagebox.showerror("Error", str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if conn:
+            cursor.close()
+            conn.close()
 
 
 def get_current_user():
@@ -88,8 +104,7 @@ def set_current_user_pseudo(new_pseudo):
     global current_user_pseudo
     current_user_pseudo = new_pseudo
 
-
-# --- Fonctions pour changer de page ---
+# --- Page Navigation ---
 def show_register():
     frame_login.pack_forget()
     frame_register.pack(padx=10, pady=10, fill="x")
@@ -98,13 +113,11 @@ def show_login():
     frame_register.pack_forget()
     frame_login.pack(padx=10, pady=10, fill="x")
 
-def get_current_user():
-    return current_user_pseudo, current_user_level
-# --- Interface tkinter ---
+# --- Tkinter UI ---
 root = tk.Tk()
 root.title("Login / Register")
 
-# --- Frame d'inscription ---
+# --- Register Frame ---
 frame_register = tk.LabelFrame(root, text="Register")
 
 tk.Label(frame_register, text="Username:").pack()
@@ -122,7 +135,7 @@ entry_register_password2.pack()
 tk.Button(frame_register, text="Register", command=register).pack(pady=5)
 tk.Button(frame_register, text="Back to Login", command=show_login).pack()
 
-# --- Frame de connexion ---
+# --- Login Frame ---
 frame_login = tk.LabelFrame(root, text="Login")
 
 tk.Label(frame_login, text="Username:").pack()
@@ -136,7 +149,8 @@ entry_login_password.pack()
 tk.Button(frame_login, text="Login", command=login).pack(pady=5)
 tk.Button(frame_login, text="Create an account", command=show_register).pack()
 
-# --- Démarrer avec la page de connexion ---
+# --- Start with Login Page ---
 show_login()
 
+# --- Main Loop ---
 root.mainloop()

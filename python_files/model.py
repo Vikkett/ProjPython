@@ -6,7 +6,6 @@
 
 import mysql.connector
 
-
 def open_db():
     """Établit une connexion à la base de données et retourne l'objet connexion."""
     try:
@@ -14,7 +13,7 @@ def open_db():
             host='127.0.0.1',
             port='3306',
             user='root',
-            password='root',
+            password='Vikket',
             database="Projet_karting"
         )
         return conn
