@@ -1,3 +1,6 @@
 # ProjPython
 
-Tout les dossier de "data_base" ont d'information des requettes pour base de données. Fix.sql est pour modifier base de données avec nouvel code, donc si nous avons besoin corriger partie base de données on fait ça dans cette requettes. Nous avons créé une autre requette avec tout les codes en ordre pour lancer base de données "Import_data_base" dedans vous avez 2 fichier a lancer, c'est plus simple comme ça. 
+Le dossier "data_base" permet de créer la base de données et insérer les données dans SQL (chaque parties séparément). "Import_data_base" a 2 fichiers ; 1 pour créer la base de données et l'autre pour insérer les données.  Fix.sql est pour réparer la base de données.
+
+
+Pour la connexion à SQL depuis python, il faut modifier les valeurs dans "model.py". Après il y a juste a lancer "main.py".

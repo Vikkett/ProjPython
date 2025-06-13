@@ -107,7 +107,7 @@ def open_main_window(current_user_pseudo, current_user_level):
     main_frame = tk.Frame(root, bg="white")
     main_frame.place(relwidth=1, relheight=1)
 
-    # --- Menu principal en haut à droite ---
+    # --- Menu principal en haut à droite --- utilisation de l'IA pour le menu
     menu_frame = tk.Frame(main_frame)
     menu_frame.pack(anchor="ne", padx=10, pady=5)
 
@@ -287,7 +287,7 @@ def refresh_kartings():
                                   fg="white")
             btn_inscr.pack(side="left", padx=5)
 
-    def update_menu(menu_widget, var, values):
+    def update_menu(menu_widget, var, values): #aide de l'IA pour ceci
         menu = menu_widget["menu"]
         menu.delete(0, "end")
         for val in values:
